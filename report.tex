@@ -1,0 +1,42 @@
+\documentclass[a4paper,11pt]{jsarticle}
+\usepackage{amsmath,amssymb}
+\usepackage{bm}
+\usepackage[dvips]{graphicx}
+
+\title{Machine Learning Midterm Assignment}
+\author{Keisuke Okumura, 18M31013}
+
+\newcommand{\argmax}{\mathop{\rm argmax}\limits}
+\newcommand{\argmin}{\mathop{\rm argmin}\limits}
+\newcommand{\coloneq}{:=}
+
+\begin{document}
+\maketitle
+
+\section*{Problem 1}
+ロジスティック回帰では次の問題を解くことになる.
+\[ \hat{\bm{w}} = \argmin_{\bm{w}}J(\bm{w}) \]
+\[
+ J(\bm{w}) \coloneq \sum_{i=1}^{n}(
+ \ln{(1 + \exp{(-y_i\bm{w}^\mathrm{T}\bm{x}_i)}}))
+ + \lambda \bm{w}^\mathrm{T}\bm{w}
+\]
+
+\subsection*{steepest gradient method}
+以下の更新式に従って学習を行う.
+$\alpha$ は定数とする.
+\[
+\bm{w}^{(t+1)} = \bm{w}^{(t)} - \alpha\left.\frac{\partial J}{\partial \bm{w}}\right|_{\bm{w}=\bm{w}^{(t)}}
+\]
+\begin{align*}
+\frac{\partial J(\bm{w})}{\partial \bm{w}}
+ &= \frac{1}{n}\sum_{i=1}^{n}
+ \frac{\exp(-y_i\bm{w}^\mathrm{T}\bm{x}_i)(-y_i\bm{x}_i)}
+ {1 + \exp(-y_i\bm{w}^\mathrm{T}\bm{x}_i)}
+ + 2\lambda\bm{w}\\
+ &=\frac{1}{n}\sum_{i=1}^{n}
+ \frac{-y_i\bm{x}_i}
+ {1 + \exp(y_i\bm{w}^\mathrm{T}\bm{x}_i)}
+ + 2\lambda\bm{w}\\
+\end{align*}
+\end{document}
