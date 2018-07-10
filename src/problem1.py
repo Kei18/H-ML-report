@@ -15,13 +15,13 @@ def loss_func(w, x, y, _lambda):
     return np.sum(np.log(1 + np.exp(-np.dot(w.T, x) * y)), axis=1) + _lambda * np.dot(w.T, w)
 
 def logistic_grad(w, x, y, _lambda):
-    n = w.shape[0]
+    n = x.shape[1]
     ans = np.sum((- y * x) / (1 + np.exp(np.dot(w.T, x) * y)), axis=1) / n + 2 * _lambda * w
     return ans
 
 def logistic_steepest(x, y, repeat_num=1000, _step=0.1, _lambda=0.1):
     # initialize weight
-    w = np.ones(x.shape[0])
+    w = np.zeros(x.shape[0])
     # update weight
     for i in range(0, repeat_num):
         w = w - _step * logistic_grad(w, x, y, _lambda)
@@ -37,9 +37,10 @@ if __name__ == '__main__':
     _step = 0.1
     _lambda = 0.1
     repeat_num = 100
+    data_num = 100
 
     # create training data
-    (x, y) = db.dataset2(100)
+    (x, y) = db.dataset2(data_num)
 
     # learning by steepest gradient method
     w = logistic_steepest(x, y, repeat_num, _step, _lambda)
