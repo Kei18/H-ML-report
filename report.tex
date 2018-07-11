@@ -1,7 +1,8 @@
-\documentclass[a4paper,11pt]{jsarticle}
+\documentclass[a4paper,10pt]{jsarticle}
 \usepackage{amsmath,amssymb}
 \usepackage{bm}
-\usepackage[dvips]{graphicx}
+\usepackage[dvipdfmx]{graphicx}
+\usepackage[dvipdfmx]{color}
 
 \title{Machine Learning Midterm Assignment}
 \author{Keisuke Okumura, 18M31013}
@@ -22,9 +23,7 @@
  + \lambda \bm{w}^\mathrm{T}\bm{w}
 \]
 
-\subsection*{steepest gradient method}
-以下の更新式に従って学習を行う.
-$\alpha$ は定数とする.
+最急降下法(steepest gradient method)では, 以下の更新式に従って学習を行う. $\alpha$ は定数とする.
 \[
 \bm{w}^{(t+1)} = \bm{w}^{(t)} - \alpha\left.\frac{\partial J}{\partial \bm{w}}\right|_{\bm{w}=\bm{w}^{(t)}}
 \]
@@ -39,4 +38,41 @@ $\alpha$ は定数とする.
  {1 + \exp(y_i\bm{w}^\mathrm{T}\bm{x}_i)}
  + 2\lambda\bm{w}\\
 \end{align*}
+
+また, ニュートン法(newton method)では以下の更新式に従って学習を行う. $\alpha$ は定数とする.
+\[ \bm{w}^{(t+1)} = \bm{w}^{(t)} + \alpha\bm{d}^{(t)} \]
+\[ \nabla^2J(\bm{w}^{(t)})\bm{d}^{(t)} = -\nabla J(\bm{w}^{(t)})
+\Longleftrightarrow
+\bm{d}^{(t)} = - (\nabla^2J(\bm{w}^{(t)}))^{-1} \nabla J(\bm{w}^{(t)})
+\]
+
+$\nabla^2J(\bm{w})$は次のように計算される.
+\[
+ \nabla^2J(\bm{w}) = \frac{1}{n}\sum_{i=1}^{n}(\frac{\exp(-y_i\bm{w}^\mathrm{T}\bm{x}_i)}
+ {(1 + \exp(-y_i\bm{w}^\mathrm{T}\bm{x}_i))^2})\bm{x}_i\bm{x}_i^\mathrm{T}) + 2\lambda\bm{I}
+\]
+
+$100$個のデータからなるデータセットを Toy Dataset I\hspace{-1pt}I を参考に生成し,
+最急降下法, 及びニュートン法を実行した結果を図.~\ref{img:log-result}に示す.
+また, その時の学習の進行の様子を図.~\ref{img:log-loss}に示す.
+パラメータ更新の繰り返し数は$50$回, $\alpha=0.1$, $\lambda=0.1$として学習を行った.
+
+\begin{figure}[htbp]
+ \begin{minipage}{0.5\hsize}
+  \begin{center}
+   \includegraphics[width=7cm]{figs/p1_logistic-regression_result.pdf}
+  \end{center}
+  \caption{ロジスティック回帰の学習結果}
+  \label{img:log-result}
+ \end{minipage}
+ \begin{minipage}{0.5\hsize}
+  \begin{center}
+   \includegraphics[width=7cm]{figs/p1_logistic-regression_loss.pdf}
+  \end{center}
+  \caption{損失関数の値の変化}
+  \label{img:log-loss}
+ \end{minipage}
+\end{figure}
+
+
 \end{document}
