@@ -38,16 +38,15 @@ def direction_newton(w, x, y, _lambda):
 def logistic_regression(func_direction, x, y, repeat_num=100, _step=0.1, _lambda=0.1):
     # initialize weight
     w = np.zeros(x.shape[0])
-    losses = [loss_func(w, x, y, _lambda)]
+    # history
+    w_hist = [w]
     # update weight
     for i in range(0, repeat_num):
         w = w + _step * func_direction(w, x, y, _lambda)
-        # compute loss
-        loss = loss_func(w, x, y, _lambda)
-        losses.append(loss)
+        w_hist.append(w)
         cnt_correct = np.sum(2 * (np.dot(w.T, x) > 0) - 1 == y)
-        print("itr:%d" % i, "loss-func %f" % loss, "correct:%d/%d" % (cnt_correct, y.shape[1]))
-    return (w, losses)
+        print("itr:%d" % i, "correct:%d/%d" % (cnt_correct, y.shape[1]))
+    return w_hist
 
 
 if __name__ == '__main__':
@@ -62,8 +61,10 @@ if __name__ == '__main__':
     # create training data
     (x, y) = db.dataset2(data_num)
 
-    (w_s, loss_s) = logistic_regression(direction_steepest, x, y, repeat_num, _step, _lambda)
-    (w_n, loss_n) = logistic_regression(direction_newton, x, y, repeat_num, _step, _lambda)
+    w_s = logistic_regression(direction_steepest, x, y, repeat_num, _step, _lambda)
+    w_n = logistic_regression(direction_newton, x, y, repeat_num, _step, _lambda)
+    loss_s = [loss_func(w, x, y, _lambda) for w in w_s]
+    loss_n = [loss_func(w, x, y, _lambda) for w in w_n]
 
     # plot training data
     for a, b in zip(x.T, y.T):
@@ -72,8 +73,8 @@ if __name__ == '__main__':
         plt.scatter(a[0], a[1], marker=marker, color=color)
     # plot classification, w_1*x_1 + w_2*x_2 = 0
     x_plot = np.arange(-2, 2.1, 0.1)
-    y_s = - w_s[0] / w_s[1] * x_plot
-    y_n = - w_n[0] / w_n[1] * x_plot
+    y_s = - w_s[-1][0] / w_s[-1][1] * x_plot
+    y_n = - w_n[-1][0] / w_n[-1][1] * x_plot
     plt.plot(x_plot, y_s, color="green", label="steepest gradient method")
     plt.plot(x_plot, y_n, color="orange", label="newton method")
 

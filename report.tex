@@ -62,7 +62,7 @@ $100$個のデータからなるデータセットを Toy Dataset I\hspace{-1pt}
   \begin{center}
    \includegraphics[width=7cm]{figs/p1_logistic-regression_result.pdf}
   \end{center}
-  \caption{ロジスティック回帰の学習結果}
+  \caption{ロジスティック回帰の学習結果. $\bm{w}^\mathrm{T}\bm{x}=0$ を描画.}
   \label{img:log-result}
  \end{minipage}
  \begin{minipage}{0.5\hsize}
@@ -74,5 +74,41 @@ $100$個のデータからなるデータセットを Toy Dataset I\hspace{-1pt}
  \end{minipage}
 \end{figure}
 
+\section*{Problem 2}
+本問題では, \textit{lasso}を用いて次の問題を考える.
+\[
+ \hat{\bm{w}} = \argmin_{\bm{w}}((\bm{w}-\bm{\mu})^\mathrm{T}\bm{A}(\bm{w}-\bm{\mu})
+ + \lambda||\bm{w}||_1)
+\]
+解を得るために, Proximal gradient methodを用いる.
+$\psi = (\bm{w}-\bm{\mu})^\mathrm{T}\bm{A}(\bm{w}-\bm{\mu})$ とする.
+$\psi$ を二次形式とみなし $\bm{A}$ を対称行列とすると, $\nabla \psi$ は次のようになる.
+\[
+ \nabla \psi = (\bm{A} + \bm{A}^\mathrm{T})(\bm{w} - \bm{\mu}) = 2\bm{A}(\bm{w} - \bm{\mu})
+\]
+
+したがって, 更新式は次のようになる.
+\[
+ w^{(t+1)}_i
+ = ST_{\frac{\lambda}{\gamma}}\left(w^{(t)}_i
+ -\left\{\frac{1}{\gamma}\nabla\psi(\bm{w}^{(t)})\right\}_i\right)
+ = ST_{\frac{\lambda}{\gamma}}\left(w^{(t)}_i
+ -\left\{\frac{1}{\gamma}2\bm{A}(\bm{w}^{(t)} - \bm{\mu})\right\}_i\right)
+\]
+\begin{align*}
+ ST_q(\mu) = \begin{cases}
+              \mu - q &(\mathit{if} \,\, \mu > q)\\
+              0 &(\mathit{if} \,\, |\mu| \leq q)\\
+              \mu + q &(\mathit{if} \,\, \mu < -q)\\
+             \end{cases}
+\end{align*}
+
+以下の条件で, 学習を行う.
+\[
+ \bm{A} = \left(\begin{array}{cc} 3 & 0.5 \\ 0.5 & 1 \end{array}\right), \,
+ \bm{\mu} = \left(\begin{array}{c} 1 \\ 2 \end{array}\right)
+\]
+この時 $\bm{A}$ の固有値は$\frac{4\pm\sqrt{5}}{2}$であるから,
+学習率を$\eta_t=\left(\frac{4+\sqrt{5}}{2}\right)^{-1}=\frac{8-2\sqrt{5}}{11}$とする.
 
 \end{document}
