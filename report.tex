@@ -69,7 +69,7 @@ $100$個のデータからなるデータセットを Toy Dataset I\hspace{-1pt}
   \begin{center}
    \includegraphics[width=7cm]{figs/p1_logistic-regression_loss.pdf}
   \end{center}
-  \caption{損失関数の値の変化}
+  \caption{損失関数の値の変化.}
   \label{img:log-loss}
  \end{minipage}
 \end{figure}
@@ -103,12 +103,45 @@ $\psi$ を二次形式とみなし $\bm{A}$ を対称行列とすると, $\nabla
              \end{cases}
 \end{align*}
 
-以下の条件で, 学習を行う.
+このとき, 以下の条件で, 学習を行う.
 \[
  \bm{A} = \left(\begin{array}{cc} 3 & 0.5 \\ 0.5 & 1 \end{array}\right), \,
  \bm{\mu} = \left(\begin{array}{c} 1 \\ 2 \end{array}\right)
 \]
-この時 $\bm{A}$ の固有値は$\frac{4\pm\sqrt{5}}{2}$であるから,
-学習率を$\eta_t=\left(\frac{4+\sqrt{5}}{2}\right)^{-1}=\frac{8-2\sqrt{5}}{11}$とする.
+学習率 $\eta_t$ について, $\eta_t^{-1}$ を $2\bm{A}$ の固有値の最大値とする.
+繰り返し数は$50$回とした.
+
+$\lambda$ を$2$, $4$, $6$と変えた時の学習の様子を図.~\ref{img:lasso-result}に示す.
+さらに, 講義スライドを参照して $||\bm{w}^{(t)} - \hat{\bm{w}}||$ を計算し,
+図.~\ref{img:lasso-error}に示す.
+\begin{figure}[htbp]
+ \begin{minipage}{0.33\hsize}
+  \begin{center}
+   \includegraphics[width=5cm]{figs/p2_lasso_result_lambda-2.pdf}
+  \end{center}
+ \end{minipage}
+ \begin{minipage}{0.33\hsize}
+  \begin{center}
+   \includegraphics[width=5cm]{figs/p2_lasso_result_lambda-4.pdf}
+  \end{center}
+ \end{minipage}
+ \begin{minipage}{0.33\hsize}
+  \begin{center}
+   \includegraphics[width=5cm]{figs/p2_lasso_result_lambda-6.pdf}
+  \end{center}
+ \end{minipage}
+ \caption{\textit{lasso}を用いて学習を行った様子. 左から $\lambda=2, 4, 6$となっている.}
+ \label{img:lasso-result}
+\end{figure}
+
+\begin{figure}[htbp]
+ \begin{center}
+   \includegraphics[width=10cm]{figs/p2_lasso_dist.pdf}
+ \end{center}
+ \caption{\textit{lasso}を用いて学習した時の$||\bm{w}^{(t)} - \hat{\bm{w}}||$の値の変化.
+ $\lambda=2,4$の時に一度スコアが上がっているのは,
+ $\hat{\bm{w}}$を小数点2桁で打ち切っているためだと考えられる.}
+ \label{img:lasso-error}
+\end{figure}
 
 \end{document}
