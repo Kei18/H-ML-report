@@ -48,8 +48,9 @@
 
 $\nabla^2J(\bm{w})$は次のように計算される.
 \[
- \nabla^2J(\bm{w}) = \frac{1}{n}\sum_{i=1}^{n}(\frac{\exp(-y_i\bm{w}^\mathrm{T}\bm{x}_i)}
- {(1 + \exp(-y_i\bm{w}^\mathrm{T}\bm{x}_i))^2})\bm{x}_i\bm{x}_i^\mathrm{T}) + 2\lambda\bm{I}
+ \nabla^2J(\bm{w}) = \frac{1}{n}\sum_{i=1}^{n}
+ \left(\frac{\exp(-y_i\bm{w}^\mathrm{T}\bm{x}_i)}
+ {(1 + \exp(-y_i\bm{w}^\mathrm{T}\bm{x}_i))^2}\bm{x}_i\bm{x}_i^\mathrm{T}\right) + 2\lambda\bm{I}
 \]
 
 $100$個のデータからなるデータセットを Toy Dataset I\hspace{-1pt}I を参考に生成し,
@@ -82,20 +83,20 @@ $100$個のデータからなるデータセットを Toy Dataset I\hspace{-1pt}
 \]
 解を得るために, Proximal gradient methodを用いる.
 $\psi = (\bm{w}-\bm{\mu})^\mathrm{T}\bm{A}(\bm{w}-\bm{\mu})$ とする.
-$\psi$ を二次形式とみなし $\bm{A}$ を対称行列とすると, $\nabla \psi$ は次のようになる.
-\[
- \nabla \psi = (\bm{A} + \bm{A}^\mathrm{T})(\bm{w} - \bm{\mu}) = 2\bm{A}(\bm{w} - \bm{\mu})
-\]
-
-したがって, 更新式は次のようになる.
-\[
+更新式は次のようになる.
+\begin{align*}
+ w^{(t+1)}_i
+ &= prox_{\eta_t\lambda||\cdot||_1}\left(\bm{w}^{(t)}
+ - \eta_t\nabla\psi(\bm{w}^{(t-1)})\right)
+\end{align*}
+ここで, 学習率 $\eta_t=\gamma^{-1}$ とする.
+$\gamma$ は $\psi$ のリプシッツ定数とし, $2\bm{A}$ の固有値の最大値をとることができる.
+上式はL1ノルムの近接写像であるから, Soft Threshold関数を用いて, 次のように変換される.
+\begin{align*}
  w^{(t+1)}_i
  = ST_{\frac{\lambda}{\gamma}}\left(w^{(t)}_i
- -\left\{\frac{1}{\gamma}\nabla\psi(\bm{w}^{(t)})\right\}_i\right)
- = ST_{\frac{\lambda}{\gamma}}\left(w^{(t)}_i
- -\left\{\frac{1}{\gamma}2\bm{A}(\bm{w}^{(t)} - \bm{\mu})\right\}_i\right)
-\]
-\begin{align*}
+ -\left\{\frac{1}{\gamma}\nabla\psi(\bm{w}^{(t)})\right\}_i\right), 
+ \,\,\,\,
  ST_q(\mu) = \begin{cases}
               \mu - q &(\mathit{if} \,\, \mu > q)\\
               0 &(\mathit{if} \,\, |\mu| \leq q)\\
@@ -103,17 +104,27 @@ $\psi$ を二次形式とみなし $\bm{A}$ を対称行列とすると, $\nabla
              \end{cases}
 \end{align*}
 
+$\psi$ を二次形式とみなし $\bm{A}$ を対称行列とすると, $\nabla \psi$ は次のようになる.
+\[
+ \nabla \psi = (\bm{A} + \bm{A}^\mathrm{T})(\bm{w} - \bm{\mu}) = 2\bm{A}(\bm{w} - \bm{\mu})
+\]
+
+以上より, 更新式は次式で表される.
+\[
+ w^{(t+1)}_i
+ = ST_{\frac{\lambda}{\gamma}}\left(w^{(t)}_i
+ -\left\{\frac{1}{\gamma}2\bm{A}(\bm{w}^{(t)} - \bm{\mu})\right\}_i\right)
+\]
+
 このとき, 以下の条件で, 学習を行う.
 \[
  \bm{A} = \left(\begin{array}{cc} 3 & 0.5 \\ 0.5 & 1 \end{array}\right), \,
  \bm{\mu} = \left(\begin{array}{c} 1 \\ 2 \end{array}\right)
 \]
-学習率 $\eta_t$ について, $\eta_t^{-1}$ を $2\bm{A}$ の固有値の最大値とする.
-繰り返し数は$50$回とした.
 
-$\lambda$ を$2$, $4$, $6$と変えた時の学習の様子を図.~\ref{img:lasso-result}に示す.
+繰り返し数を$50$回, $\lambda$ を$2$, $4$, $6$と変えた時の学習の様子を図.~\ref{img:lasso-result}に示す.
 さらに, 講義スライドを参照して $||\bm{w}^{(t)} - \hat{\bm{w}}||$ を計算し,
-図.~\ref{img:lasso-error}に示す.
+結果を図.~\ref{img:lasso-error}に示す.
 \begin{figure}[htbp]
  \begin{minipage}{0.33\hsize}
   \begin{center}
