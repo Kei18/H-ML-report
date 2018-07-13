@@ -44,7 +44,7 @@ def lasso(A, mu, _lambda, repeat_num=50, accelerated=False, w_init=np.array([3, 
     for i in range(0, repeat_num):
         if accelerated and i > 1:
             # accelerated proximal gradient update
-            v = w + q_scalar_func(i) * (w - w_hist[-2])
+            v = w_hist[-1] + q_scalar_func(i) * (w_hist[-1] - w_hist[-2])
             w = soft_threshold_array(q, v - phi_grad(v, A, mu) / _gamma)
         else:
             # proximal gradient update
@@ -109,72 +109,53 @@ if __name__ == '__main__':
         plt.xlabel("w_1")
         plt.ylabel("w_2")
 
-    # result of proximal gradient
+    # lambda=2
     plt_config_result()
     plt.contour(x, y, loss_2, 50)
     plt.colorbar()
-    plt.plot([_w[0] for _w in w_2], [_w[1] for _w in w_2],
-             color="red", marker="o", ms=4, linewidth=1)
+    plt.plot([_w[0] for _w in w_2], [_w[1] for _w in w_2], label="PG",
+             color="red", marker="o", ms=2, linewidth=0.8)
+    plt.plot([_w[0] for _w in w_a_2], [_w[1] for _w in w_a_2], label="APG",
+             color="blue", marker="x", ms=2, linewidth=0.8)
+    plt.legend()
     filename = os.path.join("figs", "p2_lasso_result_lambda-2.pdf")
     plt.savefig(filename, pad_inches=0.05, transparent=True, bbox_inches='tight')
     plt.clf()
 
+    # lambda=4
     plt_config_result()
     plt.contour(x, y, loss_4, 50)
     plt.colorbar()
-    plt.plot([_w[0] for _w in w_4], [_w[1] for _w in w_4],
-             color="red", marker="o", ms=4, linewidth=1)
+    plt.plot([_w[0] for _w in w_4], [_w[1] for _w in w_4], label="PG",
+             color="red", marker="o", ms=2, linewidth=0.8)
+    plt.plot([_w[0] for _w in w_a_4], [_w[1] for _w in w_a_4], label="APG",
+             color="blue", marker="x", ms=2, linewidth=0.8)
+    plt.legend()
     filename = os.path.join("figs", "p2_lasso_result_lambda-4.pdf")
     plt.savefig(filename, pad_inches=0.05, transparent=True, bbox_inches='tight')
     plt.clf()
 
+    # lambda=6
     plt_config_result()
     plt.contour(x, y, loss_6, 50)
     plt.colorbar()
-    plt.plot([_w[0] for _w in w_6], [_w[1] for _w in w_6],
-             color="red", marker="o", ms=4, linewidth=1)
+    plt.plot([_w[0] for _w in w_6], [_w[1] for _w in w_6], label="PG",
+             color="red", marker="o", ms=2, linewidth=0.8)
+    plt.plot([_w[0] for _w in w_a_6], [_w[1] for _w in w_a_6], label="APG",
+             color="blue", marker="x", ms=2, linewidth=0.8)
+    plt.legend()
     filename = os.path.join("figs", "p2_lasso_result_lambda-6.pdf")
     plt.savefig(filename, pad_inches=0.05, transparent=True, bbox_inches='tight')
     plt.clf()
 
-    # result of accelerated proximal gradient
-    plt_config_result()
-    plt.contour(x, y, loss_2, 50)
-    plt.colorbar()
-    plt.plot([_w[0] for _w in w_2], [_w[1] for _w in w_a_2],
-             color="red", marker="o", ms=4, linewidth=1)
-    filename = os.path.join("figs", "p2_lasso_accelerated_result_lambda-2.pdf")
-    plt.savefig(filename, pad_inches=0.05, transparent=True, bbox_inches='tight')
-    plt.clf()
-
-    plt_config_result()
-    plt.contour(x, y, loss_4, 50)
-    plt.colorbar()
-    plt.plot([_w[0] for _w in w_4], [_w[1] for _w in w_a_4],
-             color="red", marker="o", ms=4, linewidth=1)
-    filename = os.path.join("figs", "p2_lasso_accelerated_result_lambda-4.pdf")
-    plt.savefig(filename, pad_inches=0.05, transparent=True, bbox_inches='tight')
-    plt.clf()
-
-    plt_config_result()
-    plt.contour(x, y, loss_6, 50)
-    plt.colorbar()
-    plt.plot([_w[0] for _w in w_6], [_w[1] for _w in w_a_6],
-             color="red", marker="o", ms=4, linewidth=1)
-    filename = os.path.join("figs", "p2_lasso_accelerated_result_lambda-6.pdf")
-    plt.savefig(filename, pad_inches=0.05, transparent=True, bbox_inches='tight')
-    plt.clf()
-
-
     # plot dist
     plt.figure(figsize=(6, 4))
-    plt.plot(np.arange(repeat_num + 1), dist_2, label="lambda=2")
-    plt.plot(np.arange(repeat_num + 1), dist_4, label="lambda=4")
-    plt.plot(np.arange(repeat_num + 1), dist_6, label="lambda=6")
-    plt.plot(np.arange(repeat_num + 1), dist_a_2, label="a, lambda=2")
-    plt.plot(np.arange(repeat_num + 1), dist_a_4, label="a, lambda=4")
-    plt.plot(np.arange(repeat_num + 1), dist_a_6, label="a, lambda=6")
-
+    plt.plot(np.arange(repeat_num + 1), dist_2, label="PG, lambda=2")
+    plt.plot(np.arange(repeat_num + 1), dist_4, label="PG, lambda=4")
+    plt.plot(np.arange(repeat_num + 1), dist_6, label="PG, lambda=6")
+    plt.plot(np.arange(repeat_num + 1), dist_a_2, label="APG, lambda=2")
+    plt.plot(np.arange(repeat_num + 1), dist_a_4, label="APG, lambda=4")
+    plt.plot(np.arange(repeat_num + 1), dist_a_6, label="APG, lambda=6")
     plt.xlim(0, repeat_num)
     plt.yscale('log')
     plt.xlabel("t")

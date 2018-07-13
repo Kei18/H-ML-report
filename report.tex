@@ -81,7 +81,7 @@ $100$個のデータからなるデータセットを Toy Dataset I\hspace{-1pt}
  \hat{\bm{w}} = \argmin_{\bm{w}}((\bm{w}-\bm{\mu})^\mathrm{T}\bm{A}(\bm{w}-\bm{\mu})
  + \lambda||\bm{w}||_1)
 \]
-解を得るために, Proximal gradient methodを用いる.
+解を得るために, Proximal gradient method (PG) を用いる.
 $\psi = (\bm{w}-\bm{\mu})^\mathrm{T}\bm{A}(\bm{w}-\bm{\mu})$ とする.
 更新式は次のようになる.
 \begin{align*}
@@ -116,7 +116,7 @@ $\psi$ を二次形式とみなし $\bm{A}$ を対称行列とすると, $\nabla
  -\left\{\frac{1}{\gamma}2\bm{A}(\bm{w}^{(t)} - \bm{\mu})\right\}_i\right)
 \]
 
-また, Accelerated proximal gradientを用いた場合, 更新式は次のように変化する.
+また, Accelerated proximal gradient (APG) を用いた場合, 更新式は次のように変化する.
 \[
   \bm{w}^{(t+1)} = prox_{\eta_t\lambda||\cdot||_1}\left(
  \bm{v}^{(t)} - \eta_t\nabla\psi(\bm{v}^{(t)})\right)
@@ -152,7 +152,7 @@ $q(t)$はスカラー関数である. 今回は次式を用いる.
    \includegraphics[width=5cm]{figs/p2_lasso_result_lambda-6.pdf}
   \end{center}
  \end{minipage}
- \caption{\textit{lasso}, Proximal gradientを用いて学習を行った様子. 
+ \caption{\textit{lasso} を用いて学習を行った様子. 
  左から $\lambda=2, 4, 6$となっている.}
  \label{img:lasso-result}
 \end{figure}
@@ -162,8 +162,7 @@ $q(t)$はスカラー関数である. 今回は次式を用いる.
    \includegraphics[width=10cm]{figs/p2_lasso_dist.pdf}
  \end{center}
  \caption{\textit{lasso}を用いて学習した時の$||\bm{w}^{(t)} - \hat{\bm{w}}||$の値の変化.
- $\lambda=2,4$の時に一度スコアが上がっているのは,
- $\hat{\bm{w}}$を小数点2桁で打ち切っているためだと考えられる.}
+ 一度スコアが上がる理由としては,  $\hat{\bm{w}}$を小数点2桁で打ち切っているためだと考えられる.}
  \label{img:lasso-error}
 \end{figure}
 
