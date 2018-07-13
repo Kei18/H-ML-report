@@ -95,7 +95,7 @@ $\gamma$ は $\psi$ のリプシッツ定数とし, $2\bm{A}$ の固有値の最
 \begin{align*}
  w^{(t+1)}_i
  = ST_{\frac{\lambda}{\gamma}}\left(w^{(t)}_i
- -\left\{\frac{1}{\gamma}\nabla\psi(\bm{w}^{(t)})\right\}_i\right), 
+ -\left\{\frac{1}{\gamma}\nabla\psi(\bm{w}^{(t)})\right\}_i\right),
  \,\,\,\,
  ST_q(\mu) = \begin{cases}
               \mu - q &(\mathit{if} \,\, \mu > q)\\
@@ -116,7 +116,16 @@ $\psi$ を二次形式とみなし $\bm{A}$ を対称行列とすると, $\nabla
  -\left\{\frac{1}{\gamma}2\bm{A}(\bm{w}^{(t)} - \bm{\mu})\right\}_i\right)
 \]
 
-このとき, 以下の条件で, 学習を行う.
+また, Accelerated proximal gradientを用いた場合, 更新式は次のように変化する.
+\[
+  \bm{w}^{(t+1)} = prox_{\eta_t\lambda||\cdot||_1}\left(
+ \bm{v}^{(t)} - \eta_t\nabla\psi(\bm{v}^{(t)})\right)
+\]
+\[ \bm{v}^{(t)} = \bm{w}^{(t)} + q(t)(\bm{w}^{(t)} - \bm{w}^{(t-1)}) \]
+$q(t)$はスカラー関数である. 今回は次式を用いる.
+\[ q(t) = \frac{t-1}{t+2} \]
+
+以上を踏まえて, 以下の条件で学習を行う.
 \[
  \bm{A} = \left(\begin{array}{cc} 3 & 0.5 \\ 0.5 & 1 \end{array}\right), \,
  \bm{\mu} = \left(\begin{array}{c} 1 \\ 2 \end{array}\right)
@@ -125,6 +134,8 @@ $\psi$ を二次形式とみなし $\bm{A}$ を対称行列とすると, $\nabla
 繰り返し数を$50$回, $\lambda$ を$2$, $4$, $6$と変えた時の学習の様子を図.~\ref{img:lasso-result}に示す.
 さらに, 講義スライドを参照して $||\bm{w}^{(t)} - \hat{\bm{w}}||$ を計算し,
 結果を図.~\ref{img:lasso-error}に示す.
+
+
 \begin{figure}[htbp]
  \begin{minipage}{0.33\hsize}
   \begin{center}
@@ -141,7 +152,8 @@ $\psi$ を二次形式とみなし $\bm{A}$ を対称行列とすると, $\nabla
    \includegraphics[width=5cm]{figs/p2_lasso_result_lambda-6.pdf}
   \end{center}
  \end{minipage}
- \caption{\textit{lasso}を用いて学習を行った様子. 左から $\lambda=2, 4, 6$となっている.}
+ \caption{\textit{lasso}, Proximal gradientを用いて学習を行った様子. 
+ 左から $\lambda=2, 4, 6$となっている.}
  \label{img:lasso-result}
 \end{figure}
 
