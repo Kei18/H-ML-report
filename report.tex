@@ -87,7 +87,7 @@ $\psi = (\bm{w}-\bm{\mu})^\mathrm{T}\bm{A}(\bm{w}-\bm{\mu})$ とする.
 \begin{align*}
  w^{(t+1)}_i
  &= prox_{\eta_t\lambda||\cdot||_1}\left(\bm{w}^{(t)}
- - \eta_t\nabla\psi(\bm{w}^{(t-1)})\right)
+ - \eta_t\nabla\psi(\bm{w}^{(t)})\right)
 \end{align*}
 ここで, 学習率 $\eta_t=\gamma^{-1}$ とする.
 $\gamma$ は $\psi$ のリプシッツ定数とし, $2\bm{A}$ の固有値の最大値をとることができる.
@@ -154,5 +154,21 @@ $\psi$ を二次形式とみなし $\bm{A}$ を対称行列とすると, $\nabla
  $\hat{\bm{w}}$を小数点2桁で打ち切っているためだと考えられる.}
  \label{img:lasso-error}
 \end{figure}
+
+AdaGrad を使用した場合, 更新式は次のようになる.
+\begin{align*}
+ \bm{w}^{(t)}
+ &= \argmin_{\bm{w}}\left((\bm{w} - \bm{w}^{(t-1)})^\mathrm{T}
+ \left(\sum_{t}\bm{g}_t\right)+\lambda||\bm{w}||_1
+ +\frac{1}{2\eta_0}||\bm{w}-\bm{w}^{(t-1)}||^2_{\bm{H}_t}\right)\\
+ &= ST_{\eta_0\frac{\lambda}{t}}\left(\bm{w}^{(t-1)}-\eta_0\bm{H}^{-1}_t
+ \left(\sum_{t}\bm{g}_t\right)\right)\\
+\end{align*}
+ただし, $\bm{g}_t=\nabla\psi(\bm{w}^{(t-1)})$ である.
+$\bm{H}_t$ は次のように定義される.
+\[
+ \bm{H}_t = \bm{G}^{1/2}_t + \epsilon\bm{I},\,\,\,\,
+  \{\bm{G_t}\}_{i,j}=\delta_{ij}\sum_{\tau=1}^{t}\{\bm{g}_{\gamma}\}^2_i
+\]
 
 \end{document}
