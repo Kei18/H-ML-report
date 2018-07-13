@@ -169,11 +169,9 @@ $q(t)$はスカラー関数である. 今回は次式を用いる.
 AdaGrad を使用した場合, 更新式は次のようになる.
 \begin{align*}
  \bm{w}^{(t)}
- &= \argmin_{\bm{w}}\left((\bm{w} - \bm{w}^{(t-1)})^\mathrm{T}
- \left(\sum_{t}\bm{g}_t\right)+\lambda||\bm{w}||_1
+ &= \argmin_{\bm{w}}\left((\bm{w} - \bm{w}^{(t-1)})^\mathrm{T}\bm{g}_t+\lambda||\bm{w}||_1
  +\frac{1}{2\eta_0}||\bm{w}-\bm{w}^{(t-1)}||^2_{\bm{H}_t}\right)\\
- &= ST_{\eta_0\frac{\lambda}{t}}\left(\bm{w}^{(t-1)}-\eta_0\bm{H}^{-1}_t
- \left(\sum_{t}\bm{g}_t\right)\right)\\
+ &= ST_{\eta_0\frac{\lambda}{t}}\left(\bm{w}^{(t-1)}-\eta_0\bm{H}^{-1}_t\bm{g}_t\right)\\
 \end{align*}
 ただし, $\bm{g}_t=\nabla\psi(\bm{w}^{(t-1)})$ である.
 $\bm{H}_t$ は次のように定義される.
