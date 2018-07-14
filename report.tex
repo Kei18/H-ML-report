@@ -230,7 +230,7 @@ $||\bm{w}^{(t)} - \hat{\bm{w}}||_1$を計算し,
 support vector machine では次の問題を考える. $\lambda > 0$とする.
 \begin{equation}
  \hat{\bm{w}} = \argmin_{w \in \mathbb{R}^d}
-  \left(\sum_{i=1}^{n}max(0, 1 - y_i\bm{w}\mathrm{T}\bm{x}_i)
+  \left(\sum_{i=1}^{n}max(0, 1 - y_i\bm{w}^\mathrm{T}\bm{x}_i)
    + \lambda||\bm{w}||^2_2 \right)
 \end{equation}
 $max(0, 1 - y_i\bm{w}\mathrm{T}\bm{x}_i) < \xi_i$ となる
@@ -312,7 +312,7 @@ projected gradientの更新式は以下の通り.
  \bm{\alpha}^{(t)}
  & = P_{[0,1]^n}(\bm{\alpha}^{(t-1)} - \eta_t\nabla\psi(\bm{\alpha}^{(t-1)}))\\
  & = P_{[0,1]^n}\left(\bm{\alpha}^{(t-1)} - \eta_t\left(
- \frac{1}{2\lambda}\bm{K}\bm{\alpha} - 1\right)\right)
+ \frac{1}{2\lambda}\bm{K}\bm{\alpha} - \bm{1}\right)\right)
 \end{align*}
 $P_{[0,1]^n}$は $[0, 1]$ への射影演算子であり, 具体的には次のような写像である.
 \[
