@@ -132,9 +132,8 @@ $q(t)$はスカラー関数である. 今回は次式を用いる.
 \]
 
 繰り返し数を$50$回, $\lambda$ を$2$, $4$, $6$と変えた時の学習の様子を図.~\ref{img:lasso-result}に示す.
-さらに, 講義スライドを参照して $||\bm{w}^{(t)} - \hat{\bm{w}}||$ を計算し,
-結果を図.~\ref{img:lasso-error}に示す.
-
+さらに, Python の数理最適化ライブラリ CVXOPT を使用して最適解 $\hat{\bm{w}}$ を導出し,
+$||\bm{w}^{(t)} - \hat{\bm{w}}||_1$ を計算して結果を図.~\ref{img:lasso-error}に示す.
 
 \begin{figure}[htbp]
  \begin{minipage}{0.33\hsize}
@@ -158,26 +157,73 @@ $q(t)$はスカラー関数である. 今回は次式を用いる.
 \end{figure}
 
 \begin{figure}[htbp]
- \begin{center}
-   \includegraphics[width=10cm]{figs/p2_lasso_dist.pdf}
- \end{center}
- \caption{\textit{lasso}を用いて学習した時の$||\bm{w}^{(t)} - \hat{\bm{w}}||$の値の変化.
- 一度スコアが上がる理由としては,  $\hat{\bm{w}}$を小数点2桁で打ち切っているためだと考えられる.}
+ \begin{minipage}{0.33\hsize}
+  \begin{center}
+   \includegraphics[width=5cm]{figs/p2_lasso_dist_lambda-2.pdf}
+  \end{center}
+ \end{minipage}
+ \begin{minipage}{0.33\hsize}
+  \begin{center}
+   \includegraphics[width=5cm]{figs/p2_lasso_dist_lambda-4.pdf}
+  \end{center}
+ \end{minipage}
+ \begin{minipage}{0.33\hsize}
+  \begin{center}
+   \includegraphics[width=5cm]{figs/p2_lasso_dist_lambda-6.pdf}
+  \end{center}
+ \end{minipage}
+ \caption{\textit{lasso}を用いて学習した時の$||\bm{w}^{(t)} - \hat{\bm{w}}||_1$の値の変化.
+ 左から $\lambda=2, 4, 6$となっている.
+ $\lambda=6$の時, PG と APG の線はほとんどかぶっている.}
  \label{img:lasso-error}
 \end{figure}
 
-AdaGrad を使用した場合, 更新式は次のようになる.
-\begin{align*}
- \bm{w}^{(t)}
- &= \argmin_{\bm{w}}\left((\bm{w} - \bm{w}^{(t-1)})^\mathrm{T}\bm{g}_t+\lambda||\bm{w}||_1
- +\frac{1}{2\eta_0}||\bm{w}-\bm{w}^{(t-1)}||^2_{\bm{H}_t}\right)\\
- &= ST_{\eta_0\frac{\lambda}{t}}\left(\bm{w}^{(t-1)}-\eta_0\bm{H}^{-1}_t\bm{g}_t\right)\\
-\end{align*}
+AdaGrad を使用した場合, \textit{lasso}の更新式は次のようになる.
+\[
+  \bm{w}^{(t)}
+ = \argmin_{\bm{w}}\left((\bm{w} - \bm{w}^{(t-1)})^\mathrm{T}\bm{g}_t+\lambda||\bm{w}||_1
+ +\frac{1}{2\eta_0}||\bm{w}-\bm{w}^{(t-1)}||^2_{\bm{H}_t}\right)
+\]
 ただし, $\bm{g}_t=\nabla\psi(\bm{w}^{(t-1)})$ である.
 $\bm{H}_t$ は次のように定義される.
 \[
  \bm{H}_t = \bm{G}^{1/2}_t + \epsilon\bm{I},\,\,\,\,
   \{\bm{G_t}\}_{i,j}=\delta_{ij}\sum_{\tau=1}^{t}\{\bm{g}_{\gamma}\}^2_i
 \]
+更新式はSoft Threshold関数を用いると, 次のように表される.
+\[
+ \bm{w}^{(t)}_i = ST_{\eta_0\lambda\{\bm{H}_t^{-1}\}_{ii}}
+ \left(\bm{w}^{(t-1)}_i-\eta_0\{\bm{H}^{-1}_t\bm{g}_t\}_i\right)\\
+\]
+
+PG, APG, AdaGrad の比較を行う. 以下の条件で学習を行う.
+\[
+ \bm{A} = \left(\begin{array}{cc} 250 & 15 \\ 15 & 4 \end{array}\right), \,
+ \bm{\mu} = \left(\begin{array}{c} 1 \\ 2 \end{array}\right), \,
+ \lambda = 0.89
+\]
+AdaGrad のパラメータとして, $\eta_0=500/\gamma$, $\epsilon=0.02$を用いた.
+
+繰り返し数を$500$回とした時の学習の様子を図.~\ref{img:lasso-adagrad}に示す.
+また, CVXOPT により導出された最適解$\hat{\bm{w}}$を用いて
+$||\bm{w}^{(t)} - \hat{\bm{w}}||_1$を計算し,
+その結果を図.~\ref{img:lasso-dist-adagrad}に示す.
+\begin{figure}[htbp]
+ \begin{minipage}{0.5\hsize}
+  \begin{center}
+   \includegraphics[width=7cm]{figs/p2_lasso_result_pg-apg-adagrad.pdf}
+  \end{center}
+  \caption{\textit{lasso} を用いて学習を行った様子.}
+  \label{img:lasso-adagrad}
+ \end{minipage}
+ \begin{minipage}{0.5\hsize}
+  \begin{center}
+   \includegraphics[width=7cm]{figs/p2_lasso_dist_adagrad.pdf}
+  \end{center}
+  \caption{\textit{lasso}を用いて学習した時の$||\bm{w}^{(t)} - \hat{\bm{w}}||_1$の値の変化.}
+  \label{img:lasso-dist-adagrad}
+ \end{minipage}
+\end{figure}
+
 
 \end{document}
