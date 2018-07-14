@@ -1,6 +1,7 @@
 \documentclass[a4paper,10pt]{jsarticle}
 \usepackage{amsmath,amssymb}
 \usepackage{bm}
+\usepackage[subrefformat=parens]{subcaption}
 \usepackage[dvipdfmx]{graphicx}
 \usepackage[dvipdfmx]{color}
 
@@ -204,26 +205,29 @@ PG, APG, AdaGrad の比較を行う. 以下の条件で学習を行う.
 \]
 AdaGrad のパラメータとして, $\eta_0=500/\gamma$, $\epsilon=0.02$を用いた.
 
-繰り返し数を$500$回とした時の学習の様子を図.~\ref{img:lasso-adagrad}に示す.
-また, CVXOPT により導出された最適解$\hat{\bm{w}}$を用いて
+繰り返し数を$500$回とした時の学習の様子と,
+CVXOPT により導出された最適解$\hat{\bm{w}}$を用いて
 $||\bm{w}^{(t)} - \hat{\bm{w}}||_1$を計算し,
-その結果を図.~\ref{img:lasso-dist-adagrad}に示す.
+その結果を図.~\ref{img:lasso-adagrad}に示す.
 \begin{figure}[htbp]
  \begin{minipage}{0.5\hsize}
   \begin{center}
    \includegraphics[width=7cm]{figs/p2_lasso_result_pg-apg-adagrad.pdf}
   \end{center}
-  \caption{\textit{lasso} を用いて学習を行った様子.}
-  \label{img:lasso-adagrad}
+  \vspace{-0.5cm}
+  \subcaption{}
  \end{minipage}
  \begin{minipage}{0.5\hsize}
   \begin{center}
    \includegraphics[width=7cm]{figs/p2_lasso_dist_adagrad.pdf}
   \end{center}
-  \caption{\textit{lasso}を用いて学習した時の
-  $||\bm{w}^{(t)} - \hat{\bm{w}}||_1$の値の変化.}
-  \label{img:lasso-dist-adagrad}
+  \vspace{-0.5cm}
+  \subcaption{}
  \end{minipage}
+ \caption{\textbf{a)} \textit{lasso} を用いて学習を行った様子.
+ \textbf{b)} $||\bm{w}^{(t)} - \hat{\bm{w}}||_1$の値の変化.
+ }
+ \label{img:lasso-adagrad}
 \end{figure}
 
 \section*{Problem 3}
@@ -323,5 +327,30 @@ $P_{[0,1]^n}$は $[0, 1]$ への射影演算子であり, 具体的には次の�
      1 &(\mathit{if} \,\, 1 < \tilde{\alpha}_i)
     \end{cases}
 \]
+
+以上を踏まえて学習を行う.
+繰り返し数を$50$回, $\lambda=10$, $\eta_t = 0.1$ とした時の学習の様子を図~\ref{img:svm}に示す.
+\begin{figure}[htbp]
+ \begin{minipage}{0.5\hsize}
+  \begin{center}
+   \includegraphics[width=7cm]{figs/p3_svm_result.pdf}
+  \end{center}
+  \vspace{-0.5cm}
+  \subcaption{}
+ \end{minipage}
+ \begin{minipage}{0.5\hsize}
+  \begin{center}
+   \includegraphics[width=7cm]{figs/p3_svm_gap.pdf}
+  \end{center}
+  \vspace{-0.5cm}
+  \subcaption{}
+ \end{minipage}
+ \caption{\textbf{a)} \textit{support vector machine} を用いて学習を行った様子.
+ $\bm{w}^\mathrm{T}\bm{x}=-1,0,1$を描画.
+ \textbf{b)} ヒンジ損失関数と正則化項の和 - (1)式と,
+ ラグランジュの双対関数 - (2)式の値の変化の様子.
+ duality gapが0に収束していく様子が見られる.}
+ \label{img:svm}
+\end{figure}
 
 \end{document}
