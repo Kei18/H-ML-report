@@ -220,10 +220,108 @@ $||\bm{w}^{(t)} - \hat{\bm{w}}||_1$を計算し,
   \begin{center}
    \includegraphics[width=7cm]{figs/p2_lasso_dist_adagrad.pdf}
   \end{center}
-  \caption{\textit{lasso}を用いて学習した時の$||\bm{w}^{(t)} - \hat{\bm{w}}||_1$の値の変化.}
+  \caption{\textit{lasso}を用いて学習した時の
+  $||\bm{w}^{(t)} - \hat{\bm{w}}||_1$の値の変化.}
   \label{img:lasso-dist-adagrad}
  \end{minipage}
 \end{figure}
 
+\section*{Problem 3}
+support vector machine では次の問題を考える. $\lambda > 0$とする.
+\begin{equation}
+ \hat{\bm{w}} = \argmin_{w \in \mathbb{R}^d}
+  \left(\sum_{i=1}^{n}max(0, 1 - y_i\bm{w}\mathrm{T}\bm{x}_i)
+   + \lambda||\bm{w}||^2_2 \right)
+\end{equation}
+$max(0, 1 - y_i\bm{w}\mathrm{T}\bm{x}_i) < \xi_i$ となる
+$\bm{\xi} = (\xi_1, ..., \xi_n)^\mathrm{T}$を用いて,
+上記の問題を以下の最適化問題に置き換える.
+$C=1/2\lambda$とする.
+\begin{align*}
+ minimize_{\bm{w}, \bm{x}} \,\,\,\,
+ & \frac{1}{2}\bm{w}^\mathrm{T}\bm{w} + C\bm{1}^\mathrm{T}\bm{\xi}\\
+ subject \,\, to \,\,\,\, &\xi_i \geq 1 - y_i\bm{w}^\mathrm{T}\bm{x}_i\\
+ &\xi_i \geq 0
+\end{align*}
+Lagrangian を求めると以下のようになる.
+\begin{align*}
+ L(\bm{w}, \bm{xi}, \bm{\alpha}, \bm{\beta})
+ = \frac{1}{2}\bm{w}^\mathrm{T}\bm{w} + C\bm{1}^\mathrm{T}\bm{\xi}
+ + \sum_{i}\alpha_i(1 - y_i\bm{w}^\mathrm{T}\bm{x}_i - \xi_i)
+ + \sum_{i}\beta_i(-\xi_i)
+\end{align*}
+KKT 条件を求める.
+\begin{align*}
+ \frac{\partial L}{\partial \bm{w}} = 0 \,\, \Longleftrightarrow
+ &\,\,\hat{\bm{w}} = \sum_{i}\alpha_iy_i\bm{x}_i\\
+ \frac{\partial L}{\partial \bm{\xi}} = 0 \,\, \Longleftrightarrow
+ &\,\,\hat{\bm{\alpha}} + \hat{\bm{\beta}} = C\bm{1}\\
+ \hat{\alpha}_i \geq 0\\
+ \hat{\beta}_i \geq 0\\
+ \hat{\alpha}_i(1 - y_i\hat{\bm{w}}^\mathrm{T}\bm{x}_i - \hat{\xi}_i) = 0\\
+ \hat{\beta}_i(- \hat{\xi}_i) = 0
+\end{align*}
+次に, Lagrange の双対関数を求める.
+$\hat{\bm{w}}=\sum_{i}\alpha_iy_i\bm{x}_i$,
+$\hat{\bm{\beta}} = C\bm{1} - \hat{\bm{\alpha}}$
+を利用する.
+\begin{align*}
+ \tilde{L}(\bm{\alpha}, \bm{\beta})
+ & = \inf_{\bm{w}, \bm{\xi} \in D}L(\bm{w}, \bm{\xi}, \bm{\alpha}, \bm{\beta})\\
+ & = \frac{1}{2}\left(\sum_{i}\alpha_iy_i\bm{x}_i\right)^\mathrm{T}
+ \left(\sum_{i}\alpha_iy_i\bm{x}_i\right)
+ + C\bm{1}^\mathrm{T}\bm{\xi}\\
+ &\,\,\,\,\,\,\,\,+ \sum_{i}\alpha_i\left(1 - y_i
+ \left(\sum_{j}\alpha_jy_j\bm{x}_j\right)^\mathrm{T}\bm{x}_i-\xi_i\right)\\
+ &\,\,\,\,\,\,\,\,+ \sum_i(C - \alpha_i)(-\xi_i)\\
+ & = \sum_i\alpha_i - \frac{1}{2}\sum_{i,j}\alpha_i\alpha_jy_iy_j
+ \bm{x}^\mathrm{T}_i\bm{x}_j\\
+ & = -\frac{1}{2}\bm{\alpha}^\mathrm{T}\bm{K}\mathrm{\bm{\alpha}}
+ + \bm{\alpha}^\mathrm{T}\bm{1}
+\end{align*}
+したがって双対問題は次のように表される.
+\begin{align*}
+ maximize_{\bm{\alpha}} \,\,\,\,
+ & -\frac{1}{2}\bm{\alpha}^\mathrm{T}\bm{K}\mathrm{\bm{\alpha}}
+ + \bm{\alpha}^\mathrm{T}\bm{1}\\
+ subject \,\, to \,\,\,\, &\bm{0} \leq \bm{\alpha} \leq C\bm{1}
+ = \frac{1}{2\lambda}\bm{1}
+\end{align*}
+ただし, $\{\bm{K}\}_{i, j} = y_iy_j\bm{x}_i^\mathrm{T}\bm{x}_j$ とする.
+ここで $\bm{\alpha} \rightarrow \bm{\alpha}/2\lambda$ とすると,
+上記の双対問題を以下のように変形することができ, これが解くべき問題である.
+\begin{align}
+ maximize_{\bm{\alpha}} \,\,\,\,
+ & -\frac{1}{4\lambda}\bm{\alpha}^\mathrm{T}\bm{K}\mathrm{\bm{\alpha}}
+ + \bm{\alpha}^\mathrm{T}\bm{1}\\
+ subject \,\, to \,\,\,\, &\bm{0} \leq \bm{\alpha} \leq \bm{1}
+\end{align}
+
+また, 導出の過程で出てきた $\hat{\bm{w}}$ にも
+$\bm{\alpha} \rightarrow \bm{\alpha}/2\lambda$ を適用すると,
+最適解は次のように書き下すことができる.
+\[ \hat{\bm{w}} = \frac{1}{2\lambda}\sum_{i}\alpha_iy_i\bm{x}_i \]
+
+続いて, projected gradient method を用いて(2)式の解を求める.
+$\psi(\bm{\alpha}) = \frac{1}{4\lambda}\bm{\alpha}^\mathrm{T}\bm{K}\mathrm{\bm{\alpha}}
+ - \bm{\alpha}^\mathrm{T}\bm{1}$
+とすると, ラグランジュの双対問題は$\psi(\bm{\alpha})$の最小化問題とみなすことができる.
+
+projected gradientの更新式は以下の通り.
+\begin{align*}
+ \bm{\alpha}^{(t)}
+ & = P_{[0,1]^n}(\bm{\alpha}^{(t-1)} - \eta_t\nabla\psi(\bm{\alpha}^{(t-1)}))\\
+ & = P_{[0,1]^n}\left(\bm{\alpha}^{(t-1)} - \eta_t\left(
+ \frac{1}{2\lambda}\bm{K}\bm{\alpha} - 1\right)\right)
+\end{align*}
+$P_{[0,1]^n}$は $[0, 1]$ への射影演算子であり, 具体的には次のような写像である.
+\[
+  \{P_{[0,1]^n}(\tilde{\bm{\alpha}})\}_i
+  = \begin{cases}
+     0 &(\mathit{if} \,\, \tilde{\alpha}_i < 0)\\
+     \tilde{\alpha}_i &(\mathit{if} \,\, 0 \leq \tilde{\alpha}_i \leq 1)\\
+     1 &(\mathit{if} \,\, 1 < \tilde{\alpha}_i)
+    \end{cases}
+\]
 
 \end{document}
