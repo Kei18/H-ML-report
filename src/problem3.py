@@ -7,48 +7,10 @@
 
 
 import numpy as np
-import itertools
 import matplotlib.pyplot as plt
 import os
 import dataset as db
-
-
-def hinge_loss(x, y, w, _lambda):
-    tmp = np.vstack([np.zeros(x.shape[1]), np.ones(x.shape[1]) - np.dot(w.T, x) * y])
-    return np.sum(np.max(tmp, axis=0), axis=0) + _lambda * np.dot(w.T, w)
-
-def dual_lagrange(alpha, K, _lambda):
-    return - np.dot(alpha.T, np.dot(K, alpha)) / (4 * _lambda) + np.sum(alpha)
-
-def projection(i, s, l):
-    if i > l:
-        return l
-    elif i < s:
-        return s
-    else:
-        return i
-
-def vec_projection(vec, s, l):
-    return np.array([projection(i, _s, _l) for (i, _s, _l) in zip(vec, s, l)])
-
-def get_w_value(x, y, _lambda, alpha):
-    return np.sum((alpha * y).flatten() * x, axis=1) / (2 * _lambda)
-
-def svm(x, y, _eta, _lambda, repeat_num=50):
-    size = x.shape[1]
-    # compute K
-    K = np.zeros([size, size])
-    for i, j in itertools.product(range(size), range(size)):
-        K[i][j] = y[:,i][0] * y[:,j][0] * np.dot(x[:,i].T, x[:,j])
-    # initialize param
-    alpha = np.zeros(size)
-    alpha_hist = [alpha]
-    # update param
-    for t in range(0, repeat_num):
-        tmp = alpha - _eta * (np.dot(K, alpha) / (2 * _lambda) - np.ones(size))
-        alpha = vec_projection(tmp, np.zeros(size), np.ones(size))
-        alpha_hist.append(alpha)
-    return alpha_hist
+import svm
 
 
 if __name__ == '__main__':
@@ -57,25 +19,24 @@ if __name__ == '__main__':
     _eta = 0.1
     repeat_num = 50
     data_num = 100
+    alpha_init = np.zeros(data_num)
 
     # create trainig data
     (x, y) = db.dataset2(data_num)
 
     # implement svm
-    alpha = svm(x, y, _eta, _lambda, repeat_num)
+    alpha = svm.svm(alpha_init, x, y, _lambda, _eta, repeat_num)
 
-    # compute weights
-    w = np.array([get_w_value(x, y, _lambda, _alpha) for _alpha in alpha])
+    # compute params
+    w = np.array([svm.get_w_value(x, y, _lambda, _alpha) for _alpha in alpha])
 
     # compute score of dual of lagrange
-    size = x.shape[1]
-    K = np.zeros([size, size])
-    for i, j in itertools.product(range(size), range(size)):
-        K[i][j] = y[:,i][0] * y[:,j][0] * np.dot(x[:,i].T, x[:,j])
-    duals = [dual_lagrange(_alpha, K, _lambda) for _alpha in alpha]
+    n = x.shape[1]
+    K = svm.get_K(x, y)
+    duals = [svm.dual_lagrange(_alpha, K, _lambda) for _alpha in alpha]
 
     # compute score of hinge function
-    loss = [hinge_loss(x, y, _w, _lambda) for _w in w]
+    loss = [svm.hinge_loss(x, y, _w, _lambda) for _w in w]
 
     # plot training data
     plt.figure(figsize=(4, 4))

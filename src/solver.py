@@ -2,21 +2,22 @@
 # -*- coding: utf-8 -*-
 #
 # solver.py
+# obtain optimal solution using cvxopt
 #
 # Created by Keisuke Okumura <okumura.k@coord.c.titech.ac.jp>
 
-
 import cvxopt
 import numpy as np
-import dataset as db
 
 
-def get_opt(A, mu, _lambda):
+# obtain optimal for (w-\mu)^T A (w-\mu)
+def get_quadratic_opt(A, mu, _lambda):
     P = cvxopt.matrix(A)
     q = cvxopt.matrix(_lambda/2*np.ones(mu.shape[0]) - np.dot(mu.T, A))
     sol = cvxopt.solvers.qp(P, q)
     return np.array(sol['x']).flatten()
 
+# obtain optimal for lpboost
 def get_opt_lpboost(x, y, _lambda):
     d = x.shape[0]
     n = x.shape[1]

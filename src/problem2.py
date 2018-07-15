@@ -9,63 +9,9 @@
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+import lasso
 import solver
 
-def loss_func(w, A, mu, _lambda):
-    return np.dot(np.dot((w - mu).T, A), w - mu) + _lambda * np.sum(w)
-
-def soft_threshold_array(q, arr):
-    return np.array([soft_threshold(q, mu) for mu in arr])
-
-def soft_threshold(q, mu):
-    if mu > q:
-        return mu - q
-    elif mu < -q:
-        return mu + q
-    else:
-        return 0
-
-def phi_grad(w, A, mu):
-    return 2 * np.dot(A, (w - mu))
-
-def q_scalar_func(t):
-    return float(t - 1) / float(t + 2)
-
-def lasso(A, mu, _lambda, repeat_num=50, rule=None,
-          epsilon=0.02, w_init=np.array([3, -1])):
-    # obtain eigen value of 2A, then, use as the inverse of the lerning rate
-    (eigs, vec) = np.linalg.eig(2*A)
-    _gamma = np.max(eigs)
-    q = _lambda / _gamma
-    print(1 / _gamma)
-    # initialize weight
-    w = w_init
-    # history
-    w_hist = [w]
-    # for adagrad
-    g_hist = [phi_grad(w, A, mu)]
-    eta = 500 / _gamma
-    # update weight
-    for t in range(0, repeat_num):
-        if rule == "accelerated" and t > 1:
-            # accelerated proximal gradient update
-            v = w_hist[-1] + q_scalar_func(t) * (w_hist[-1] - w_hist[-2])
-            w = soft_threshold_array(q, v - phi_grad(v, A, mu) / _gamma)
-        elif rule == "adagrad":
-            # there are more simple implementations
-            # Here, the equations are truly depicted
-            G = np.diag(np.sum(np.array(g_hist)**2, axis=0))
-            H = np.sqrt(G) + epsilon * np.eye(w.shape[0])
-            arg_arr = w - eta * np.dot(np.linalg.inv(H), g_hist[-1])
-            w = np.array([soft_threshold(_q, _mu) for _q, _mu
-                          in zip(eta * _lambda / np.diag(H), arg_arr)])
-            g_hist.append(phi_grad(w, A, mu))
-        else:
-            # proximal gradient update
-            w = soft_threshold_array(q, w - phi_grad(w, A, mu) / _gamma)
-        w_hist.append(w)
-        print("itr:%d" % t, w)
-    return w_hist
 
 # for visualization
 def make_contour(A, mu, _lambda, step=0.05, xmin=-2, xmax=3.1, ymin=-2, ymax=3.1):
@@ -75,7 +21,7 @@ def make_contour(A, mu, _lambda, step=0.05, xmin=-2, xmax=3.1, ymin=-2, ymax=3.1
     for i in np.arange(len(x)):
         for j in np.arange(len(y)):
             w = np.array([x[i], y[j]])
-            loss[j][i] = (loss_func(w, A, mu, _lambda))
+            loss[j][i] = (lasso.loss_quadratic(w, A, mu, _lambda))
     return (x, y, loss)
 
 
@@ -84,21 +30,25 @@ if __name__ == '__main__':
     repeat_num = 50
     A = np.array([[3, 0.5], [0.5, 1]])
     mu = np.array([1, 2])
+    w_init = np.array([3, -1])
 
     # optimal values from lecture slides
-    w_opt_2 = solver.get_opt(A, mu, 2)
-    w_opt_4 = solver.get_opt(A, mu, 4)
-    w_opt_6 = solver.get_opt(A, mu, 6)
+    w_opt_2 = solver.get_quadratic_opt(A, mu, 2)
+    w_opt_4 = solver.get_quadratic_opt(A, mu, 4)
+    w_opt_6 = solver.get_quadratic_opt(A, mu, 6)
 
     # implement lasso with proximal gradient
-    w_2 = lasso(A, mu, 2, repeat_num)
-    w_4 = lasso(A, mu, 4, repeat_num)
-    w_6 = lasso(A, mu, 6, repeat_num)
+    w_2 = lasso.lasso(lasso.proximal_gradient, w_init, A, mu, 2, repeat_num)
+    w_4 = lasso.lasso(lasso.proximal_gradient, w_init, A, mu, 4, repeat_num)
+    w_6 = lasso.lasso(lasso.proximal_gradient, w_init, A, mu, 6, repeat_num)
 
     # implement lasso with acccelerated proximal gradient
-    w_a_2 = lasso(A, mu, 2, repeat_num, "accelerated")
-    w_a_4 = lasso(A, mu, 4, repeat_num, "accelerated")
-    w_a_6 = lasso(A, mu, 6, repeat_num, "accelerated")
+    w_a_2 = lasso.lasso(lasso.accelerated_proximal_gradient,
+                        w_init, A, mu, 2, repeat_num)
+    w_a_4 = lasso.lasso(lasso.accelerated_proximal_gradient,
+                        w_init, A, mu, 4, repeat_num)
+    w_a_6 = lasso.lasso(lasso.accelerated_proximal_gradient,
+                        w_init, A, mu, 6, repeat_num)
 
     # compute dist from opt
     dist_2 = [np.sum(np.abs(w - w_opt_2)) for w in w_2]
@@ -198,20 +148,24 @@ if __name__ == '__main__':
     plt.savefig(filename, pad_inches=0.05, transparent=True, bbox_inches='tight')
     plt.clf()
 
+
     #----------------------------------------------------
+    # implement adagrad and comparing with PG and APG
     # parameter
+    repeat_num = 500
     A = np.array([[250., 15.], [15., 4.]])
     mu = np.array([1, 2])
     _lambda = 0.89
-    repeat_num = 500
+    w_init = np.array([3, -1])
 
     # get optimal value
-    w_opt = solver.get_opt(A, mu, _lambda)
+    w_opt = solver.get_quadratic_opt(A, mu, _lambda)
 
     # implement lasso
-    w_pg = lasso(A, mu, _lambda, repeat_num)
-    w_apg = lasso(A, mu, _lambda, repeat_num, "accelerated")
-    w_adagrad = lasso(A, mu, _lambda, repeat_num, "adagrad")
+    w_pg = lasso.lasso(lasso.proximal_gradient, w_init, A, mu, _lambda, repeat_num)
+    w_apg = lasso.lasso(lasso.accelerated_proximal_gradient, w_init,
+                        A, mu, _lambda, repeat_num)
+    w_adagrad = lasso.lasso(lasso.adagrad, w_init, A, mu, _lambda, repeat_num)
     (x, y, loss) = make_contour(A, mu, _lambda)
 
     # compute distance to opt
@@ -246,4 +200,3 @@ if __name__ == '__main__':
     plt.legend()
     filename = os.path.join("figs", "p2_lasso_dist_adagrad.pdf")
     plt.savefig(filename, pad_inches=0.05, transparent=True, bbox_inches='tight')
-
