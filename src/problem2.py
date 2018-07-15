@@ -37,6 +37,7 @@ def lasso(A, mu, _lambda, repeat_num=50, rule=None,
     (eigs, vec) = np.linalg.eig(2*A)
     _gamma = np.max(eigs)
     q = _lambda / _gamma
+    print(1 / _gamma)
     # initialize weight
     w = w_init
     # history

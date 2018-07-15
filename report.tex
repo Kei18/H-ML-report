@@ -205,6 +205,7 @@ PG, APG, AdaGrad の比較を行う. 以下の条件で学習を行う.
 \]
 AdaGrad のパラメータとして, $\eta_0=500/\gamma$, $\epsilon=0.02$を用いた.
 
+以上を踏まえて学習を行う.
 繰り返し数を$500$回とした時の学習の様子と,
 CVXOPT により導出された最適解$\hat{\bm{w}}$を用いて
 $||\bm{w}^{(t)} - \hat{\bm{w}}||_1$を計算し,
@@ -345,7 +346,7 @@ $P_{[0,1]^n}$は $[0, 1]$ への射影演算子であり, 具体的には次の�
   \vspace{-0.5cm}
   \subcaption{}
  \end{minipage}
- \caption{\textbf{a)} \textit{support vector machine} を用いて学習を行った様子.
+ \caption{\textbf{a)} support vector machine を用いて学習を行った様子.
  $\bm{w}^\mathrm{T}\bm{x}=-1,0,1$を描画.
  \textbf{b)} ヒンジ損失関数と正則化項の和 - (1)式と,
  ラグランジュの双対関数 - (2)式の値の変化の様子.
@@ -378,13 +379,13 @@ $\bm{e} = (e_1, ..., e_n)^\mathrm{T}$を用いて,
 ここで, $\bm{z}$, $\bm{c}$, $\bm{A}$, $\bm{b}$ を以下のように定義する.
 \begin{equation*}
  \bm{z} = \left(\begin{array}{c} \bm{\xi} \\ \bm{e} \\ \bm{w} \end{array}\right), \,\,\,\,
- \bm{c} = \left(\begin{array}{c} \bm{1}^d \\ \lambda\bm{1}^d \\ \bm{0}^d\end{array}\right)\\
+ \bm{c} = \left(\begin{array}{c} \bm{1}^n \\ \lambda\bm{1}^d \\ \bm{0}^d\end{array}\right)\\
 \end{equation*}
 \begin{equation*}
  \bm{A} = \left(\begin{array}{ccccccccc}
            -1 & & 0 & 0 & \cdots & 0 & -y_1x_{11} & \cdots & -y_1x_{1d} \\
             & \ddots &  & \vdots & & \vdots & \vdots &  & \vdots \\
-           0 & & -1 & 0 & \cdots & 0 & -y_1x_{d1} & \cdots & -y_1x_{dd}\\
+           0 & & -1 & 0 & \cdots & 0 & -y_nx_{n1} & \cdots & -y_nx_{nd}\\
            -1 & & 0 & 0 & \cdots & 0 & 0 & \cdots & 0 \\
             & \ddots & & \vdots & & \vdots & \vdots & & \vdots \\
            0 & & -1 & 0 & \cdots & 0 & 0 & \cdots & 0\\
@@ -413,5 +414,60 @@ $\bm{e} = (e_1, ..., e_n)^\mathrm{T}$を用いて,
  subject \,\, to \,\,\,\, &\bm{A}\bm{z} \leq \bm{b}
 \end{align*}
 
+続いて, proximal gradient methodを用いた学習では,
+$\psi = \sum_{i=1}^{n}max(0, 1 - y_i\bm{w}^\mathrm{T}\bm{x}_i)$とおくと,
+更新式は次のようになる.
+\[
+ \bm{w}^{(t+1)} = prox_{\eta_t\lambda||\cdot||_1}\left(\bm{w}^{(t)}
+ - \eta_t\nabla\psi(\bm{w}^{(t)})\right)
+\]
+ところで $\psi$ は微分可能ではない.
+そこで劣微分を用いる.
+$l_i = max(0, 1 - y_i\bm{w}^\mathrm{T}\bm{x}_i)$ とおくと,
+$\bm{g}_i \in \partial l_i(\bm{w})$ は次のように定義される.
+\[
+  \bm{g}_i = \begin{cases}
+              0 &(\mathit{if} \,\, y_i\bm{w}^\mathrm{T}\bm{x}_i > 1)\\
+              -\theta y_i\bm{x}_i &(\mathit{if} \,\, y_i\bm{w}^\mathrm{T}\bm{x}_i = 1),
+              \,\,\,\,(0 \leq \theta \leq 1)\\
+              -y_i\bm{x}_i &(\mathit{if} \,\, y_i\bm{w}^\mathrm{T}\bm{x}_i < 1)\\
+             \end{cases}
+\]
+劣微分を用いると, 更新式は次のようになる.
+\[
+ w^{(t+1)}_i = prox_{\eta_t\lambda||\cdot||_1}\left(\bm{w}^{(t)}
+ - \eta_t\sum_{i=0}^{n}\bm{g}_i\right)
+\]
+上式はL1ノルムの近接写像であるから, Soft Threshold関数を用いて, 次のように変換される.
+\[
+ w^{(t+1)}_i = ST_{\eta_t\lambda}\left(
+ w^{(t)}_i - \left\{\eta_t\sum_{j=0}^{n}\bm{g}_j\right\}_i\right)
+\]
+
+$100$個のデータからなるデータセットを Toy Dataset I\hspace{-1pt}I を参考に生成し,
+proximal subgradient methodを用いて学習した結果および
+ヒンジ損失関数と正則化項の和の値の変化を図.~\ref{img:proximal-subgradient}に示す.
+同時に CVXOPT を用いて算出した最適解も示す.
+パラメータ更新の繰り返し数は$50$回, $\eta_t=0.05$, $\lambda=1$として学習を行った.
+\begin{figure}[htbp]
+ \begin{minipage}{0.5\hsize}
+  \begin{center}
+   \includegraphics[width=7cm]{figs/p4_proximal-subgradient_result.pdf}
+  \end{center}
+  \vspace{-0.5cm}
+  \subcaption{}
+ \end{minipage}
+ \begin{minipage}{0.5\hsize}
+  \begin{center}
+   \includegraphics[width=7cm]{figs/p4_proximal-subgradient_loss.pdf}
+  \end{center}
+  \vspace{-0.5cm}
+  \subcaption{}
+ \end{minipage}
+ \caption{\textbf{a)} proximal subgradient method を用いて学習を行った様子.
+ $\bm{w}^\mathrm{T}\bm{x}=0$を描画.
+ \textbf{b)} ヒンジ損失関数と正則化項の和の値の変化.}
+ \label{img:proximal-subgradient}
+\end{figure}
 
 \end{document}
