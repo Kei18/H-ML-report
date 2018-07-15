@@ -237,19 +237,19 @@ support vector machine では次の問題を考える. $\lambda > 0$とする.
   \left(\sum_{i=1}^{n}max(0, 1 - y_i\bm{w}^\mathrm{T}\bm{x}_i)
    + \lambda||\bm{w}||^2_2 \right)
 \end{equation}
-$max(0, 1 - y_i\bm{w}\mathrm{T}\bm{x}_i) < \xi_i$ となる
+$\xi_i \geq max(0, 1 - y_i\bm{w}\mathrm{T}\bm{x}_i) \geq 0$ となる
 $\bm{\xi} = (\xi_1, ..., \xi_n)^\mathrm{T}$を用いて,
 上記の問題を以下の最適化問題に置き換える.
 $C=1/2\lambda$とする.
 \begin{align*}
- minimize_{\bm{w}, \bm{x}} \,\,\,\,
+ minimize_{\bm{w}, \bm{\xi}} \,\,\,\,
  & \frac{1}{2}\bm{w}^\mathrm{T}\bm{w} + C\bm{1}^\mathrm{T}\bm{\xi}\\
  subject \,\, to \,\,\,\, &\xi_i \geq 1 - y_i\bm{w}^\mathrm{T}\bm{x}_i\\
  &\xi_i \geq 0
 \end{align*}
 Lagrangian を求めると以下のようになる.
 \begin{align*}
- L(\bm{w}, \bm{xi}, \bm{\alpha}, \bm{\beta})
+ L(\bm{w}, \bm{\xi}, \bm{\alpha}, \bm{\beta})
  = \frac{1}{2}\bm{w}^\mathrm{T}\bm{w} + C\bm{1}^\mathrm{T}\bm{\xi}
  + \sum_{i}\alpha_i(1 - y_i\bm{w}^\mathrm{T}\bm{x}_i - \xi_i)
  + \sum_{i}\beta_i(-\xi_i)
@@ -352,5 +352,66 @@ $P_{[0,1]^n}$は $[0, 1]$ への射影演算子であり, 具体的には次の�
  duality gapが0に収束していく様子が見られる.}
  \label{img:svm}
 \end{figure}
+
+\section*{Problem 4}
+ヒンジ損失関数とL1正則化項を用いて, binary classificationの問題を考える.
+具体的には次の問題を考える.
+\begin{equation}
+ \hat{\bm{w}} = \argmin_{w \in \mathbb{R}^d}
+  \left(\sum_{i=1}^{n}max(0, 1 - y_i\bm{w}^\mathrm{T}\bm{x}_i)
+   + \lambda||\bm{w}||_1 \right)
+\end{equation}
+$0 \leq \max(0, 1 - y_i\bm{w}\mathrm{T}\bm{x}_i) \leq \xi_i$ となる
+$\bm{\xi} = (\xi_1, ..., \xi_n)^\mathrm{T}$と,
+$e_i \geq |w_i| \geq 0$ となる
+$\bm{e} = (e_1, ..., e_n)^\mathrm{T}$を用いて,
+上記の問題を以下の最適化問題に置き換える.
+\begin{align*}
+ minimize_{\bm{w}, \bm{x}} \,\,\,\,
+ & \bm{1}^\mathrm{T}\bm{\xi} + \lambda\bm{1}^\mathrm{T}\bm{e}\\
+ subject \,\, to \,\,\,\, &\xi_i \geq 1 - y_i\bm{w}^\mathrm{T}\bm{x}_i\\
+ & \xi_i \geq 0\\
+ & e_i \geq - w_i\\
+ & e_i \geq w_i\\
+ & e_i \geq 0
+\end{align*}
+ここで, $\bm{z}$, $\bm{c}$, $\bm{A}$, $\bm{b}$ を以下のように定義する.
+\begin{equation*}
+ \bm{z} = \left(\begin{array}{c} \bm{\xi} \\ \bm{e} \\ \bm{w} \end{array}\right), \,\,\,\,
+ \bm{c} = \left(\begin{array}{c} \bm{1}^d \\ \lambda\bm{1}^d \\ \bm{0}^d\end{array}\right)\\
+\end{equation*}
+\begin{equation*}
+ \bm{A} = \left(\begin{array}{ccccccccc}
+           -1 & & 0 & 0 & \cdots & 0 & -y_1x_{11} & \cdots & -y_1x_{1d} \\
+            & \ddots &  & \vdots & & \vdots & \vdots &  & \vdots \\
+           0 & & -1 & 0 & \cdots & 0 & -y_1x_{d1} & \cdots & -y_1x_{dd}\\
+           -1 & & 0 & 0 & \cdots & 0 & 0 & \cdots & 0 \\
+            & \ddots & & \vdots & & \vdots & \vdots & & \vdots \\
+           0 & & -1 & 0 & \cdots & 0 & 0 & \cdots & 0\\
+           0 & \cdots & 0 & -1 &  & 0 & -1 & & 0\\
+           \vdots & & \vdots & & \ddots &  & & \ddots & \\
+           0 & \cdots & 0 & 0 & & -1 & 0 & & -1\\
+           0 & \cdots & 0 & -1 &  & 0 & 1 & & 0\\
+           \vdots & & \vdots & & \ddots &  & & \ddots & \\
+           0 & \cdots & 0 & 0 & & -1 & 0 & & 1\\
+           0 & \cdots & 0 & -1 &  & 0 & 0 & \cdots & 0\\
+           \vdots & & \vdots & & \ddots &  & \vdots & & \vdots \\
+           0 & \cdots & 0 & 0 & & -1 & 0 & \cdots & 0
+                \end{array}\right), \,\,\,\,
+ \bm{b} = \left(\begin{array}{c}
+           -1\\ \vdots \\ -1 \\
+           0\\ \vdots \\ 0 \\
+           0\\ \vdots \\ 0 \\
+           0\\ \vdots \\ 0 \\
+           0\\ \vdots \\ 0
+                \end{array}\right)
+\end{equation*}
+上記を用いて, 最小化問題は次のように書き下すことができる.
+\begin{align*}
+ minimize_{\bm{z}} \,\,\,\,
+ & \bm{c}^\mathrm{T}\bm{z}\\
+ subject \,\, to \,\,\,\, &\bm{A}\bm{z} \leq \bm{b}
+\end{align*}
+
 
 \end{document}
